@@ -12,7 +12,7 @@ import FormComponent from './FormComponent';
 export default class Input extends React.Component {
     input = React.createRef();
     state = {
-        value: this.props.initialValue
+        value: this.props.value
     }
 
     setInvalid(){
@@ -23,14 +23,15 @@ export default class Input extends React.Component {
         this.input.current.classList.remove('is-danger');
     }
 
-    setValue(value) {
-        this.setState({
-            value: value
-        });
-    }
-
-    getValue() {
-        return this.input.current.value;
+    val(value) {
+        if (value !== undefined) {
+            this.setState({
+                value: value
+            });
+        } else {
+            return this.input.current.value;
+        }
+        
     }
 
     render() {

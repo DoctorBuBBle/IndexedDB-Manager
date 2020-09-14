@@ -42,8 +42,14 @@ export default class Table extends React.Component {
         return false;
     }
 
-    getElements(){
-        return this.state.elements;
+    val(elements){
+        if (Array.isArray(elements)) {
+            this.setState({
+                elements: elements
+            });
+        } else {
+            return this.state.elements;
+        }
     }
 
     sortTable(){
