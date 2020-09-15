@@ -19,15 +19,16 @@ export default class SelectBox extends FormComponentBase {
         this.setState({
             value: element
         });
-        FormComponentBase.prototype.onChange.call(this);
+        FormComponentBase.prototype.onChange.call(this, event);
     }
 
     getComponent = (index) => {        
         let element = this.props.elements[index];
         let label = typeof element === "object" ? element[this.props.labelKey] : element;
-
+        const selected = (this.state.value === undefined && index === 0) || isEqual(element, this.state.value);
+        
         return (
-            <option key={index} value={index}>
+            <option key={index} selected={selected} value={index}>
                 {label}
             </option>
         )

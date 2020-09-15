@@ -6,7 +6,7 @@ export default class extends React.Component {
         value: this.props.value
     }
 
-    triggerChange(event){
+    onChange(event){
         if (typeof this.props.onChange === "function") {
             this.props.onChange(this, this.val(), event);
         }

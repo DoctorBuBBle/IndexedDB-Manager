@@ -1,7 +1,7 @@
 import React from 'react';
 import FormComponent from './FormComponent';
 import FormComponentBase from './FormComponentBase';
-import { throttle } from 'throttle-debounce';
+import throttle from 'lodash.throttle';
 
 /**
  *  {String} label
@@ -13,7 +13,7 @@ import { throttle } from 'throttle-debounce';
 
 export default class Input extends FormComponentBase {
 
-    throttledChange = throttle(1000, this.onChange.bind(this));
+    throttledChange = throttle(this.onChange.bind(this), 100);
 
     _getValue(){
         if (this.ref.current) {
