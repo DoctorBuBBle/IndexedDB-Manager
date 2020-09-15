@@ -2,10 +2,18 @@ import React from 'react';
 import ButtonDialog from './ButtonDialog';
 import ColumnTypes from './ColumnTypes';
 import Button from './Form/Button';
-import FormComponent from './Form/FormComponent';
 import Input from './Form/Input';
 import Table from './Form/Table';
+import isValid from './isValid';
 
+/**
+ * props: {
+ *      {String} table - Name of the table to edit. Undefined if a new table should be created
+ *      {Array} columns - The columns of this table.
+ *      {Function} onCancel - Callback for cancel button
+ *      {Function} onSave - Callback for save button
+ * }
+ */
 export default class DataTable extends React.Component {
     inputRef = React.createRef();
     tableRef = React.createRef();
@@ -22,12 +30,12 @@ export default class DataTable extends React.Component {
         {
             label: "Column name",
             render: (element) => {
-                return  <Input value={element.name} placeholder="A column name is required" onKeyUp={this.onColumnNameChange.bind(this, element)}/>
+                return  <Input ref={element.refs[0]} value={element.name} placeholder="A column name is required" onKeyUp={this.onColumnNameChange.bind(this, element)}/>
             }
         }, {
             label: "Type",
             render: element => {
-                return <ColumnTypes select={element.type} onSelect={this.onColumnTypeChange.bind(this, element)}/>
+                return <ColumnTypes ref={element.refs[1]} value={element.type} onChange={this.onColumnTypeChange.bind(this, element)}/>
             }
         }, {
             label: (
@@ -47,14 +55,32 @@ export default class DataTable extends React.Component {
         }
     ];
 
-    onColumnTypeChange(column, columnType) {
+    getColumnsWithRefs() {
+        if (this.elements) {
+            return this.elements;
+        }
+
+        this.elements = this.props.columns.map(this.getColumnWithRefs.bind(this));
+
+        return this.elements;
+    }
+
+    getColumnWithRefs(element){
+        element.refs = this.columns.map(column => {
+            return React.createRef();
+        });
+
+        return element;
+    }
+
+    onColumnTypeChange(column, select, columnType) {
         column.type = columnType;
     }
 
     onColumnNameChange(column, input) {
-        const value = input.val().toString().trim();
+        const value = input.val()
 
-        if (/^([a-z])+([a-z0-9])*$/i.test(value)){
+        if (isValid(value) && /^([a-z])+([a-z0-9])*$/i.test(value)){
             input.setValid();
         } else {
             input.setInvalid();
@@ -68,32 +94,38 @@ export default class DataTable extends React.Component {
     }
 
     addColumn(){
-        this.tableRef.current.add({
-
-        });
+        this.tableRef.current.add(this.getColumnWithRefs({}));;
     }
 
     save(){
-        debugger
-        const value = this.inputRef.current.val();
+        const tableName = this.inputRef.current.val();
         const columns = this.tableRef.current.val();
-        let columnsHaveNames = true;
+        const dbColumns = [];
+        let columnsAreValid = true;
+        
+        for(var i = 0; i < columns.length; i++) {
+            const dbColumn = {};
+            const column = columns[i];
+            const name = column.refs[0].current.val();
+            if (!isValid(name)) {
+                column.refs[0].current.setInvalid();
+            } else {
+                dbColumn.name = name;
+            }
 
-        for(var i = 0; i < columns.length && columnsHaveNames; i++) {
-            const name = columns[i].name;
-            columnsHaveNames = name !== undefined && name !== null && /^([a-z])+([a-z0-9])*$/i.test(columns[i].name);
+            columnsAreValid = name !== undefined && name !== null && /^([a-z])+([a-z0-9])*$/i.test(columns[i].name);
+
+            if (columnsAreValid) {
+                dbColumn.type = column.refs[1].current.val();
+            }
+
+            dbColumns.push(dbColumn);
         }
 
-        if (
-            value !== null && 
-            value !== undefined && 
-            typeof value === "string" && 
-            value.trim().length > 0 &&
-            columnsHaveNames
-            ) 
-        {
+        if (isValid(tableName) && columnsAreValid) {
+            debugger;
             return;
-            this.props.onSave(value);
+            this.props.onSave(tableName, dbColumns);
         } else {
             this.inputRef.current.setInvalid();
         }
@@ -103,9 +135,7 @@ export default class DataTable extends React.Component {
         return (
             <ButtonDialog title={this.title} buttons={this.buttons}>
                 <Input ref={this.inputRef} label="Name" placeholder="A tabel name is required"/>
-                <FormComponent>
-                    <Table ref={this.tableRef} editable={true} columns={this.columns} elements={this.props.columns}/>
-                </FormComponent>
+                <Table ref={this.tableRef} editable={true} columns={this.columns} elements={this.getColumnsWithRefs()}/>
             </ButtonDialog>
         )
     }

@@ -1,5 +1,4 @@
 import SelectBox from "./Form/SelectBox";
-import React from "react";
 
 const TYPES = {
     TEXT: {},
@@ -21,8 +20,14 @@ for (const key in TYPES) {
     }
 }
 
-export default function ColumnTypes(props){
-    return <SelectBox title="Types" labelKey="label" select={props.select} onSelect={props.onSelect} elements={typesListed}></SelectBox>
+export default class ColumnTypes extends SelectBox {
+
 }
 
-ColumnTypes.TYPES = TYPES;
+ColumnTypes.defaultProps = {
+    labelKey: "label",
+    elements: typesListed
+}
+
+ColumnTypes.MAP = TYPES;
+ColumnTypes.LIST = typesListed

@@ -1,5 +1,7 @@
 import React from 'react';
 import FormComponent from './FormComponent';
+import FormComponentBase from './FormComponentBase';
+import { throttle } from 'throttle-debounce';
 
 /**
  *  {String} label
@@ -9,35 +11,22 @@ import FormComponent from './FormComponent';
  *  {Boolean} readOnly
  */
 
-export default class Input extends React.Component {
-    input = React.createRef();
-    state = {
-        value: this.props.value
-    }
+export default class Input extends FormComponentBase {
 
-    setInvalid(){
-        this.input.current.classList.add('is-danger');
-    }
+    throttledChange = throttle(1000, this.onChange.bind(this));
 
-    setValid(){
-        this.input.current.classList.remove('is-danger');
-    }
-
-    val(value) {
-        if (value !== undefined) {
-            this.setState({
-                value: value
-            });
+    _getValue(){
+        if (this.ref.current) {
+            return this.ref.current.value;
         } else {
-            return this.input.current.value;
+            return this.state.value;
         }
-        
     }
 
     render() {
         return (
             <FormComponent label={this.props.label}>
-                <input className="input" ref={this.input} placeholder={this.props.placeholder} type={this.props.type} value={this.state.value} readOnly={this.props.readOnly} onKeyUp={this.props.onKeyUp.bind(this, this)}/>
+                <input className="input" ref={this.ref} placeholder={this.props.placeholder} type={this.props.type} value={this.state.value} readOnly={this.props.readOnly} onKeyUp={this.throttledChange}/>
             </FormComponent>
         );
     }

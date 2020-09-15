@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import isEqual from 'fast-deep-equal';
 import React from 'react';
+import FormComponent from './FormComponent';
 
 /**
  * 
@@ -97,14 +98,16 @@ export default class Table extends React.Component {
         })
 
         return (
-            <table className="table is-fullwidth is-hoverable">
-                <tbody>
-                    <tr key={uuid()}>
-                        {headerRow}
-                    </tr>
-                    {bodyRows}
-                </tbody>
-            </table>
+            <FormComponent>
+                <table className="table is-fullwidth is-hoverable">
+                    <tbody>
+                        <tr key={uuid()}>
+                            {headerRow}
+                        </tr>
+                        {bodyRows}
+                    </tbody>
+                </table>
+            </FormComponent>
         );
     }
 }
