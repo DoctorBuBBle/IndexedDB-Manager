@@ -13,22 +13,26 @@ import FormComponentBase from './FormComponentBase';
  * }
  */
 export default class SelectBox extends FormComponentBase {
+    state = {
+        value: this.props.value || this.props.elements.sort(this.sort)[0]
+    }
 
     onChange = event => {
         const element = this.props.elements[event.target.selectedIndex];
         this.setState({
             value: element
         });
-        FormComponentBase.prototype.onChange.call(this, event);
+        if (typeof this.props.onChange === "function") {
+            this.props.onChange(this, element, event);
+        }
     }
 
     getComponent = (index) => {        
         let element = this.props.elements[index];
         let label = typeof element === "object" ? element[this.props.labelKey] : element;
-        const selected = (this.state.value === undefined && index === 0) || isEqual(element, this.state.value);
-        
+
         return (
-            <option key={index} selected={selected} value={index}>
+            <option key={index} value={index}>
                 {label}
             </option>
         )
@@ -51,11 +55,12 @@ export default class SelectBox extends FormComponentBase {
 
     render() {
         let options = this.props.elements.sort(this.sort).map(this.createOption);
-        
+        let selected = this.props.elements.findIndex(element => isEqual(this.state.value, element));
+
         return (
             <FormComponent label={this.props.label}>
                 <div className="select">
-                    <select ref={this.ref} onChange={this.onChange}>
+                    <select ref={this.ref} value={selected} onChange={this.onChange}>
                         { options }
                     </select>
                 </div>
