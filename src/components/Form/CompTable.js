@@ -20,6 +20,7 @@ export default class ComponentTable extends React.Component {
     tableRef = React.createRef();
     columns = [];
     elements = [];
+    updateValues = [];
 
     constructor(props) {
         super(props);
@@ -38,15 +39,26 @@ export default class ComponentTable extends React.Component {
     }
 
     init(){
+        const updateValue = function(column, element, ref){
+            if (typeof element[column.key] !== "object") {
+                element[column.key] = {};
+            }
+            if (ref.current !== null) {
+                element[column.key].value = ref.current.val();
+            }
+        }
+
         this.columns = this.props.columns.map(column => {
             column.render = (element, elements, column) => {
                 const props = {
+                    ref: React.createRef(),
                     ...column.props,
                     ...element[column.key]
                 };
                 props.onChange = this.onChange.bind(this, column, element, props.onChange);
-
-                return React.createElement(column.comp, props)
+                const reactComp = React.createElement(column.comp, props)
+                this.updateValues.push(updateValue.bind(this, column, element, reactComp.ref));
+                return reactComp;
             }
             return column;
         });
@@ -84,7 +96,11 @@ export default class ComponentTable extends React.Component {
     }
 
     val(){
-        return this.tableRef.current.val();
+        const elements = this.tableRef.current.val();
+
+        this.updateValues.forEach((updateValue) => updateValue());
+
+        return elements;
     }
 }
 

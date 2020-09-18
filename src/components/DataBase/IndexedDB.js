@@ -69,7 +69,7 @@ export default class DataBase {
         let db = await this.getDataBase();
 
         return new Promise((resolve, reject) => {
-            let transaction = db.transaction(["tables"], "readwrite");
+            let transaction = db.transaction(["tables", "data"], "readwrite");
 
             transaction.oncomplete = event => { resolve(); };
             transaction.onerror = event => { reject(); }
@@ -77,19 +77,31 @@ export default class DataBase {
                 label: name,
                 columns: columns
             });
+            transaction.objectStore("data").add({
+                table: name,
+                elements: []
+            });
         });
     }
 
     async removeTable(name) {
         let db = await this.getDataBase();
+        
+        let transaction = db.transaction(["tables", "data"], "readwrite");
+        let tablesReq = transaction.objectStore("tables").delete(name);
 
-        return new Promise((resolve, reject) => {
-            let request = db.transaction(["tables"], "readwrite")
-                            .objectStore("tables")
-                            .delete(name);
-            request.onsuccess = resolve;
-            request.onerror = reject;
+        const tablesPromise = new Promise((resolve, reject) => {
+            tablesReq.onsuccess = resolve;
+            tablesReq.onerror = reject;
         });
+
+        let dataReq = transaction.objectStore("data").delete(name);
+        const dataPromise = new Promise((resolve, reject) => {
+            dataReq.onsuccess = resolve;
+            dataReq.onerror = reject;
+        });
+
+        return Promise.all([tablesPromise, dataPromise]);
     }
  
     async getTables(){

@@ -30,7 +30,8 @@ export default class ColumnTypes extends SelectBox {
 
 ColumnTypes.defaultProps = {
     labelKey: "label",
-    elements: typesListed
+    elements: typesListed,
+    value: typesListed[0]
 }
 
 ColumnTypes.MAP = TYPES;

@@ -22,7 +22,7 @@ export default function DataTables(props) {
     }
     const handeRemoveTableClick = (tableName) => {
         if (typeof props.onRemoveTable === "function") {
-            props.onRemoveTable(tableName)
+            props.onRemoveTable(tableName);
         }
     }
  
