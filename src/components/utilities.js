@@ -1,5 +1,5 @@
 
-export default function(value){
+export function isValid (value){
     if (value !== null && value !== undefined) {
         if (typeof value === "string") {
             return value.trim().length > 0;

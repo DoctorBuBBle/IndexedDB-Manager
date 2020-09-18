@@ -24,7 +24,7 @@ function App() {
     content = <DataTables tables={dataBase.getTables()} onAddTable={addDataTable}/>;
   }
   if (state === STATES.ADD_DATA_TABLE) {
-    content = <EditDataTable onCancel={listDataTables} onSave={name => dataBase.createTable(name)}></EditDataTable>
+    content = <EditDataTable onCancel={listDataTables} db={dataBase} onSave={listDataTables}></EditDataTable>
   }
 
   return (

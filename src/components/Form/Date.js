@@ -1,6 +1,7 @@
 import moment from "moment";
 import FormComponentBase from "./FormComponentBase";
 import Input from "./Input";
+import React from "react";
 
 export default class DatePicker extends FormComponentBase {
 

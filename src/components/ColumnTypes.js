@@ -1,11 +1,15 @@
+import Input from "./Form/Input";
+import IntInput from "./Form/IntInput";
 import SelectBox from "./Form/SelectBox";
+import Checkbox from "./Form/Checkbox";
+import DatePicker from "./Form/Date";
 
 const TYPES = {
-    TEXT: {},
-    SELECT: {},
-    NUMBER: {},
-    CHECKBOX: {},
-    DATE: {}
+    TEXT: Input,
+    SELECT: SelectBox,
+    NUMBER: IntInput,
+    CHECKBOX: Checkbox,
+    DATE: DatePicker
 }
 
 const typesListed = [];

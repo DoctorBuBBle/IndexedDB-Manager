@@ -7,13 +7,48 @@ export default class DataBase {
 
         if (!this.getDataBase.result) {
             this.getDataBase.result = new Promise((resolve, reject) => {
-                let request = window.indexedDB.open("main");
+                let tablesPromise;
+                let dataPromise;
+                let request = window.indexedDB.open("main", 4);
                 request.onerror = function(event) {
                     reject("To use this webapp you need to allow it access to your IndexedDB");
                 };
                 request.onsuccess = function(event){
-                    resolve(event.target.result);
+                    if (tablesPromise) {
+                        Promise.all([tablesPromise, dataPromise]).then(db => {
+                            resolve(db);
+                        })
+                    } else {
+                        resolve(event.target.result);
+                    }
                 };
+                request.onupgradeneeded = function(event) {
+                    let db = event.target.result;
+                    let tablesStore = db.createObjectStore("tables", {
+                        keyPath: "label",
+                        autoIncrement: false
+                    });
+                    tablesStore.createIndex("label", "label", {unique: true});
+
+                    tablesPromise = new Promise((resolve, reject) => {
+                        tablesStore.transaction.oncomplete = function(){
+                            resolve(db)
+                        }
+                    });
+                    
+                    let dataStore = db.createObjectStore("data", {
+                        keyPath: "table",
+                        autoIncrement: false
+                    });
+
+                    dataStore.createIndex("label", "label", {unique: true});
+
+                    dataPromise = new Promise (resolve => {
+                        dataStore.transaction.oncomplete = function(){
+                            resolve(db);
+                        }
+                    });
+                }
             });
         }
 
@@ -34,33 +69,41 @@ export default class DataBase {
         let db = await this.getDataBase();
 
         return new Promise((resolve, reject) => {
-            let objectStore = db.createObjectStore(name, {keyPath: "id", autoIncrement: true});
-            
-            if (Array.isArray(columns)) {
-                columns.forEach(element => {
-                    if (typeof element === "string") {
-                        element = { name: element };
-                    }
-                    if (typeof element !== "object") {
-                        reject("A column is not an object or string");
-                    }
+            let transaction = db.transaction(["tables"], "readwrite");
 
-                    let config = element.config || {
-                        unique: false
-                    };
-                    objectStore.createIndex(element.name, element.name, config);
-                });
-            }
+            transaction.oncomplete = event => { resolve(); };
+            transaction.onerror = event => { reject(); }
+            transaction.objectStore("tables").add({
+                label: name,
+                columns: columns
+            });
+        });
+    }
 
-            objectStore.transaction.oncomplete = function(evet){
-                resolve();
-            };
+    async removeTable(name) {
+        let db = await this.getDataBase();
+
+        return new Promise((resolve, reject) => {
+            let request = db.transaction(["tables"], "readwrite")
+                            .objectStore("tables")
+                            .delete(name);
+            request.onsuccess = resolve;
+            request.onerror = reject;
         });
     }
  
     async getTables(){
         const db = await this.getDataBase();
+        const objectStore = db.transaction("tables").objectStore("tables");
 
-        return Array.prototype.slice.call(db.objectStoreNames, 0);
+        return new Promise((resolve, reject) => {
+            objectStore.getAll().onsuccess = function(event) {
+                resolve(event.target.result);
+            }
+
+            objectStore.getAll().onerror = function(event) {
+                reject(event);
+            }
+        });
     }
 }

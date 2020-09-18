@@ -1,7 +1,6 @@
 import React from 'react';
 import Button from './Button';
 import Table from './Table';
-import isEqual from 'fast-deep-equal';
 
 /**
  * props - {

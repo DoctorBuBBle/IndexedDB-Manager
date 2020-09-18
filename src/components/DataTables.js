@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import LoadingSpinner from './Spinner/LoadingSpinner';
 import Dialog from './Dialog';
+import { v4 as uuid } from 'uuid';
 
 export default function DataTables(props) {
     const [tables, setTables] = useState(null);
@@ -14,9 +15,14 @@ export default function DataTables(props) {
 
         return css;
     }
-    let handleAddTableClick = function (event) {
+    const handleAddTableClick = function (event) {
         if (!event.currentTarget.classList.contains("is-loading") && typeof props.onAddTable === "function") {
             props.onAddTable()
+        }
+    }
+    const handeRemoveTableClick = (tableName) => {
+        if (typeof props.onRemoveTable === "function") {
+            props.onRemoveTable(tableName)
         }
     }
  
@@ -26,7 +32,7 @@ export default function DataTables(props) {
         content = <LoadingSpinner/>;
 
         if (typeof props.tables.then === "function") {
-            props.tables.then(tables => setTables(tables));
+            props.tables.then(tables => { setTables(tables); });
         } else if (Array.isArray(props.tables)) {
             setTables(props.tables);
         }
@@ -36,10 +42,17 @@ export default function DataTables(props) {
             <table className="table is-fullwidth is-hoverable">
                 <tbody>
                     {
-                        tables.map((tableName) => {
+                        tables.map((table) => {
                             return (
-                                <tr key={tableName}>
-                                    <td className="list-item" onClick={props.onClick}>{tableName}</td>
+                                <tr key={uuid()}>
+                                    <td className="list-item" onClick={props.onClick}>
+                                        <span className="pointer">{table.label}</span>
+                                    </td>
+                                    <td className="list-item">
+                                        <span className="icon is-small has-text-primary pointer" onClick={handeRemoveTableClick.bind(this, table.label)}>
+                                            <i className="fas fa-trash"></i>
+                                        </span>
+                                    </td>
                                 </tr>
                             );
                         })

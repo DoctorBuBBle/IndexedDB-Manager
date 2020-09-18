@@ -1,10 +1,9 @@
 import React from 'react';
 import ButtonDialog from './ButtonDialog';
 import ColumnTypes from './ColumnTypes';
-import Button from './Form/Button';
 import ComponentTable from './Form/CompTable';
 import Input from './Form/Input';
-import isValid from './isValid';
+import { isValid } from './utilities';
 
 /**
  * props: {
@@ -55,18 +54,19 @@ export default class DataTable extends React.Component {
         const tableName = this.inputRef.current.val();
         const columns = this.tableRef.current.val();
         
-        
         let columnsAreValid = true;        
         for(var i = 0; i < columns.length && columnsAreValid; i++) {
             const column = columns[i];
-
-            columnsAreValid = this.checkColumnName(column.props.value)
+            
+            columnsAreValid = this.checkColumnName(column?.name?.value)
+            if (column?.type?.value?.value) {
+                column.type.value.value = undefined;
+            }
         }
 
         if (isValid(tableName) && columnsAreValid) {
-            debugger;
-            return;
-            this.props.onSave(tableName, columns);
+            this.props.db.createTable(tableName, columns);
+            this.props.onSave();
         } else {
             this.inputRef.current.setInvalid();
         }

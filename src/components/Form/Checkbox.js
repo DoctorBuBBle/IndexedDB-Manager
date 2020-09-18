@@ -13,8 +13,10 @@ export default class Checkbox extends FormComponentBase {
     }
 
     render(){
-        <FormComponent label={this.props.label}>
-            <input ref={this.ref} type="checkbox" checked={this.state.value} onChange={this.onChange}></input>
-        </FormComponent>
+        return (
+            <FormComponent label={this.props.label} >
+                <input ref={this.ref} type="checkbox" checked={this.state.value} onChange={this.onChange}></input>
+            </FormComponent>
+        );
     }
 }
