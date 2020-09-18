@@ -30,10 +30,15 @@ export default function DataTables(props) {
             props.onEditTable(table);
         }
     };
+    const handleShowTableClick = table => {
+        if (typeof props.onShowTable === "function") {
+            props.onShowTable(table);
+        }
+    }
     const COLUMNS = [{
         label: "Name",
         render: "label",
-        onClick: () => {}
+        onClick: handleShowTableClick
     }, {
         label: "Edit",
         render: element => {

@@ -58,7 +58,6 @@ export default class Table extends React.Component {
     }
 
     render() {
-        console.log(this.state.elements)
         const headerRow = this.state.columns.map((column, i) => {
             return (
                 <th key={uuid()} className="list-item" onClick={this.sortTable.bind(this, column)}>{column.label}</th>

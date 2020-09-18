@@ -23,10 +23,6 @@ export default class Input extends FormComponentBase {
         }
     }
 
-    ontest(event){
-        console.log("onChange event fired: ", this.ref.current.value, event);
-    }
-
     render() {
         return (
             <FormComponent label={this.props.label}>
