@@ -40,3 +40,12 @@ $text-light: $light;
   transform: translate(-50%, -50%);
   background-color: $darkblue;
 }
+
+.table td.list-item.pointer:hover {
+  background-color: $primary;
+  color: $text-light !important;
+}
+
+.table td.list-item.pointer:hover .has-text-primary {
+  color: $text-light !important;
+}

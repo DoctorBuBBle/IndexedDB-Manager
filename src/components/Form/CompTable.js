@@ -78,7 +78,7 @@ export default class ComponentTable extends React.Component {
                         </span>
                     </Button>
                 );
-            }
+            },
         });
     }
 

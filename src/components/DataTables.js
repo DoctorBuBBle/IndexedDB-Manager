@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import LoadingSpinner from './Spinner/LoadingSpinner';
+import Table from './Form/Table';
 import Dialog from './Dialog';
-import { v4 as uuid } from 'uuid';
 
 export default function DataTables(props) {
     const [tables, setTables] = useState(null);
@@ -20,11 +20,43 @@ export default function DataTables(props) {
             props.onAddTable()
         }
     }
-    const handeRemoveTableClick = (tableName) => {
+    const handeRemoveTableClick = (table) => {
         if (typeof props.onRemoveTable === "function") {
-            props.onRemoveTable(tableName);
+            props.onRemoveTable(table.label);
         }
     }
+    const handeEditTableClick = table => {
+        if (typeof props.onEditTable === "function") {
+            props.onEditTable(table);
+        }
+    };
+    const COLUMNS = [{
+        label: "Name",
+        render: "label",
+        onClick: () => {}
+    }, {
+        label: "Edit",
+        render: element => {
+            return (
+                <span className="icon is-small has-text-primary">
+                    <i className="fas fa-pen"></i>
+                </span>
+            );
+        },
+        onClick: handeEditTableClick
+
+    }, {
+        label: "Remove",
+        render: (element) => {
+            return (
+                <span className="icon is-small has-text-primary">
+                    <i className="fas fa-trash"></i>
+                </span>
+            );
+        },
+        onClick: handeRemoveTableClick
+
+    }];
  
     let content;
 
@@ -38,28 +70,7 @@ export default function DataTables(props) {
         }
 
     } else if (Array.isArray(tables)) {
-        content = (
-            <table className="table is-fullwidth is-hoverable">
-                <tbody>
-                    {
-                        tables.map((table) => {
-                            return (
-                                <tr key={uuid()}>
-                                    <td className="list-item" onClick={props.onClick}>
-                                        <span className="pointer">{table.label}</span>
-                                    </td>
-                                    <td className="list-item">
-                                        <span className="icon is-small has-text-primary pointer" onClick={handeRemoveTableClick.bind(this, table.label)}>
-                                            <i className="fas fa-trash"></i>
-                                        </span>
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    }
-                </tbody>
-            </table>
-        );
+        content = <Table columns={COLUMNS} elements={tables}/>;
     }
 
     return (
