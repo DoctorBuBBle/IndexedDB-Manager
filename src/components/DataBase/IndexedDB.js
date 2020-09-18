@@ -1,3 +1,5 @@
+import Box from "../Boxes/Box";
+
 export default class DataBase {
 
     async getDataBase(){
@@ -72,7 +74,10 @@ export default class DataBase {
             let transaction = db.transaction(["tables", "data"], "readwrite");
 
             transaction.oncomplete = event => { resolve(); };
-            transaction.onerror = event => { reject(); }
+            transaction.onerror = event => { 
+                debugger;
+                Box.show(`The table ${name} already exists`, [{ label: "OK" }], Box.LEVEL.WARN);
+            }
             transaction.objectStore("tables").add({
                 label: name,
                 columns: columns

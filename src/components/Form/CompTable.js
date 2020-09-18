@@ -1,4 +1,5 @@
 import React from 'react';
+import Box from '../Boxes/Box';
 import Button from './Button';
 import Table from './Table';
 
@@ -86,7 +87,10 @@ export default class ComponentTable extends React.Component {
     }
 
     removeElement(elementToRemove) {
-        return this.tableRef.current.remove(elementToRemove);
+        Box.show(
+            `Do you want to remove this element?`, 
+            [{label: "No"}, {label: "Yes", isPrimary: true, onClick: () => this.tableRef.current.remove(elementToRemove)}]
+        );
     }
 
     render(){

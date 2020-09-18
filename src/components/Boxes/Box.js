@@ -2,6 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { v4 as uuid } from 'uuid';
 
+const LEVEL = {
+    INFO: "has-text-light",
+    WARNING: "has-text-warning",
+    WARN: "has-text-warning",
+    ERROR: "has-text-danger"
+};
+
 class Box extends React.Component {
     ref = React.createRef();
     state = {
@@ -14,9 +21,10 @@ class Box extends React.Component {
         });
     }
 
-    show(message, buttons) {
+    show(message, buttons, level) {
         this.setState({
             message: message,
+            level: level || LEVEL.INFO,
             buttons: buttons
         });
     }
@@ -24,7 +32,9 @@ class Box extends React.Component {
     render() {
         if (typeof this.state.message === "string") {
             const onButtonClick = (button) => {
-                button.onClick();
+                if (typeof button.onClick === "function") {
+                    button.onClick();
+                }
                 this.remove();
             }
     
@@ -41,7 +51,7 @@ class Box extends React.Component {
             return (
                 <div ref={this.ref} className="message-box">
                     <div className="content box">
-                        <h3 className="has-text-light">{this.state.message}</h3>
+                        <h3 className={this.state.level}>{this.state.message}</h3>
                         <div className="buttons is-right">
                             {buttons}
                         </div>
@@ -67,10 +77,11 @@ ReactDOM.render(
 );
 
 export default {
-    show: (message, buttons) => {
-        ref.current.show(message, buttons);
+    show: function() {
+        ref.current.show.apply(ref.current, arguments);
     },
     remove: () => {
         ref.current.remove();
-    }
+    },
+    LEVEL: LEVEL
 }
