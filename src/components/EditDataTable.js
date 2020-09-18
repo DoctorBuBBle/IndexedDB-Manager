@@ -1,4 +1,5 @@
 import React from 'react';
+import Box from './Boxes/Box';
 import ButtonDialog from './ButtonDialog';
 import ColumnTypes from './ColumnTypes';
 import ComponentTable from './Form/CompTable';
@@ -47,20 +48,27 @@ export default class DataTable extends React.Component {
     }]
 
     checkColumnName(name){
-        return name !== undefined && name !== null && /^([a-z])+([a-z0-9])*$/i.test(name);
+        return name !== undefined && name !== null && /^([a-z])+([a-z_\-0-9])*$/i.test(name);
     }
 
     save(){
         const tableName = this.inputRef.current.val();
         const columns = this.tableRef.current.val();
         
-        let columnsAreValid = true;        
+        let columnsAreValid = true;
+        const columnNames = [];
         for(var i = 0; i < columns.length && columnsAreValid; i++) {
             const column = columns[i];
-            
-            columnsAreValid = this.checkColumnName(column?.name?.value)
-            if (column?.type?.value?.value) {
-                column.type.value.value = undefined;
+
+            if (!this.checkColumnName(column?.name?.value)) {
+                Box.show(`The column "${column?.name?.value}" contains illegal characters. A column musst start with a letter and can contain numbers.`, [{label: "OK"}]);
+                columnsAreValid = false;
+            }
+            if (columnNames.indexOf(column?.name?.value) > -1) {
+                Box.show(`A number of columns have the name "${column?.name?.value}". A column name must be unique.`, [{label: "OK"}]);
+                columnsAreValid = false;
+            } else {
+                columnNames.push(column?.name?.value);
             }
         }
 

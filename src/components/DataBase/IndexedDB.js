@@ -75,7 +75,6 @@ export default class DataBase {
 
             transaction.oncomplete = event => { resolve(); };
             transaction.onerror = event => { 
-                debugger;
                 Box.show(`The table ${name} already exists`, [{ label: "OK" }], Box.LEVEL.WARN);
             }
             transaction.objectStore("tables").add({

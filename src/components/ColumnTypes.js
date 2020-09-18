@@ -16,10 +16,9 @@ const typesListed = [];
 
 for (const key in TYPES) {
     if (TYPES.hasOwnProperty(key)) {
-        const element = TYPES[key];
         typesListed.push({
             label: key,
-            value: element
+            value: key
         });
     }
 }
