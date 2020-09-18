@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './App.scss';
 import Box from './components/Boxes/Box';
 import IndexedDB from './components/DataBase/IndexedDB';
 import DataTables from './components/DataTables';

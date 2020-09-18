@@ -8,11 +8,15 @@ $background: $darkblue;
 $text: $light;
 $text-light: $light;
 
+@import "../node_modules/bulma/bulma.sass";
+
+body {
+  margin: 0;
+}
+
 .pointer {
   cursor: pointer;
 }
-
-@import "../node_modules/bulma/bulma.sass";
 
 .button.is-hoverable:hover {
   border-color: $white;
