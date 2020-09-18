@@ -1,8 +1,6 @@
 import React from 'react';
 import Box from '../Boxes/Box';
-import Button from './Button';
 import Table from './Table';
-import { v4 as uuid } from 'uuid';
 import FormComponent from './FormComponent';
 
 /**

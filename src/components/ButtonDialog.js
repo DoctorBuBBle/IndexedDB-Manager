@@ -6,9 +6,9 @@ export default function(props){
     const buttonsPosition = "mt-3 px-1 buttons " + (props.position ? props.position : "is-right");
     const buttons = props.buttons.map(conf => {
         const css = "button is-hoverable" + (conf.isPrimary ? " is-primary" : "");
-
+        conf.ref = React.createRef();
         return (
-            <button key={uid()} className={css} onClick={conf.onClick}>
+            <button ref={conf.ref} key={uid()} className={css} onClick={conf.onClick}>
                 {conf.label}
             </button>
         )

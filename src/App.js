@@ -7,9 +7,8 @@ import LoadingSpinner from './components/Spinner/LoadingSpinner';
 
 const STATES = {
   LIST_DATA_TABLES: 1,
-  ADD_DATA_TABLE: 2,
+  EDIT_DATA_TABLE: {id: 2},
   SHOW_DATA_TABLE: 3,
-  CHANGE_DATA_TABLE: 4,
   SHOW_LOADING: 5
 };
 
@@ -18,7 +17,8 @@ function App() {
   const [state, setState] = useState(STATES.LIST_DATA_TABLES);
   const loading = () => setState(STATES.SHOW_LOADING);
   const listDataTables = () => setState(STATES.LIST_DATA_TABLES);
-  const addDataTable = () => setState(STATES.ADD_DATA_TABLE);
+  const addDataTable = () => setState(STATES.EDIT_DATA_TABLE);
+  const editDataTable = table => setState({id: STATES.EDIT_DATA_TABLE.id, data: table});
   const removeDataTable = (name) => {
     Box.show(`Do you want to delete the table ${name}?`, [{
       label: "No",
@@ -34,14 +34,13 @@ function App() {
       }
     }]);
   };
-
+  
   let content;
-
   if (state === STATES.LIST_DATA_TABLES) {
-    content = <DataTables tables={dataBase.getTables()} onAddTable={addDataTable} onRemoveTable={removeDataTable}/>;
+    content = <DataTables tables={dataBase.getTables()} onAddTable={addDataTable} onRemoveTable={removeDataTable} onEditTable={editDataTable}/>;
   }
-  if (state === STATES.ADD_DATA_TABLE) {
-    content = <EditDataTable onCancel={listDataTables} db={dataBase} onSave={listDataTables}></EditDataTable>
+  if (state.id === STATES.EDIT_DATA_TABLE.id) {
+    content = <EditDataTable table={state.data} onCancel={listDataTables} db={dataBase} onSave={listDataTables}></EditDataTable>
   }
   if (state === STATES.SHOW_LOADING) {
     content = <LoadingSpinner />

@@ -15,9 +15,10 @@ import { isValid } from './utilities';
  * }
  */
 export default class DataTable extends React.Component {
+    loadingSpinner = React.createRef();
     inputRef = React.createRef();
     tableRef = React.createRef();
-    title = this.props.table ? "Change Table '"  + this.props.table + "'" : "Create Table";
+    title = this.props?.table?.label ? "Change Table '"  + this.props.table.label + "'" : "Create Table";
     buttons = [{
         label: "Cancel",
         onClick: this.props.onCancel
@@ -51,11 +52,31 @@ export default class DataTable extends React.Component {
         return name !== undefined && name !== null && /^([a-z])+([a-z_\-0-9])*$/i.test(name);
     }
 
+    showLoading(){
+        this.buttons.forEach(button => {
+            if (button?.ref?.current) {
+                button.ref.current.classList.add('is-loading');
+            }
+        });
+    }
+
+    hideLoading(){
+        this.buttons.forEach(button => {
+            if (button?.ref?.current) {
+                button.ref.current.classList.remove('is-loading');
+            }
+        });
+    }
+
     save(){
         const tableName = this.inputRef.current.val();
         const columns = this.tableRef.current.val();
         
-        let columnsAreValid = true;
+        let columnsAreValid = columns.length > 0;
+        if (!columnsAreValid) {
+            Box.show('A table must have at least one column', [{label: "OK"}]);
+        }
+
         const columnNames = [];
         for(var i = 0; i < columns.length && columnsAreValid; i++) {
             const column = columns[i];
@@ -73,8 +94,8 @@ export default class DataTable extends React.Component {
         }
 
         if (isValid(tableName) && columnsAreValid) {
-            this.props.db.createTable(tableName, columns);
-            this.props.onSave();
+            this.showLoading();
+            this.props.db.createTable(tableName, columns, typeof this.props?.table?.label === "string").then(this.props.onSave).catch(this.hideLoading.bind(this));
         } else {
             this.inputRef.current.setInvalid();
         }
@@ -83,13 +104,9 @@ export default class DataTable extends React.Component {
     render(){
         return (
             <ButtonDialog title={this.title} buttons={this.buttons}>
-                <Input ref={this.inputRef} label="Name" placeholder="A tabel name is required"/>
-                <ComponentTable ref={this.tableRef} columns={this.columns} elements={this.props.elements}/>
+                <Input ref={this.inputRef} label="Name" value={this.props?.table?.label} placeholder="A tabel name is required"/>
+                <ComponentTable ref={this.tableRef} columns={this.columns} elements={this.props?.table?.columns || [{}]}/>
             </ButtonDialog>
         )
     }
-}
-
-DataTable.defaultProps = {
-    elements: [{}]
 }

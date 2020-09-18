@@ -61,30 +61,51 @@ export default class DataBase {
      * Creates a table with the given name and columns.
      * @param {String} name 
      * @param {Array} columns - An array of objects that configurate each column
+     * @param {Boolean} overwrite - default false
      * 
      * column: {
      *      {String} name - The name of the column
      *      {Object} config - undefined or an object that configurates the column
      * }
      */
-    async createTable(name, columns){
+    async createTable(name, columns, overwrite){
         let db = await this.getDataBase();
 
         return new Promise((resolve, reject) => {
             let transaction = db.transaction(["tables", "data"], "readwrite");
-
-            transaction.oncomplete = event => { resolve(); };
+            transaction.oncomplete = event => { resolve(); }
             transaction.onerror = event => { 
-                Box.show(`The table ${name} already exists`, [{ label: "OK" }], Box.LEVEL.WARN);
+                Box.show('Ups! I can\'t create or save the changes to your table', [{ label: "OK" }], Box.LEVEL.ERROR);
+                reject();
             }
-            transaction.objectStore("tables").add({
-                label: name,
-                columns: columns
-            });
-            transaction.objectStore("data").add({
-                table: name,
-                elements: []
-            });
+            
+            const addToObjectStore = () => {
+                transaction.objectStore("tables").put({
+                    label: name,
+                    columns: columns
+                });
+                transaction.objectStore("data").put({
+                    table: name,
+                    elements: []
+                });
+            }
+
+            if (!overwrite) {
+                let request = transaction.objectStore("tables").get(name);
+                request.onsuccess = function(event) {
+                    if (typeof event.target.result === "object") {
+                        Box.show(`The table ${name} already exists`, [{ label: "OK" }], Box.LEVEL.WARN);
+                        reject();
+                    } else {
+                        addToObjectStore();
+                    }
+                };
+                request.onerror = function(event){
+                    reject();
+                }
+            } else {
+                addToObjectStore();
+            }
         });
     }
 
