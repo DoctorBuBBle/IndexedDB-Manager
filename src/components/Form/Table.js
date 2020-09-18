@@ -53,20 +53,23 @@ export default class Table extends React.Component {
         }
     }
 
-    sortTable(){
+    sort(){
 
     }
 
     render() {
         const headerRow = this.state.columns.map((column, i) => {
+            const thCss = "list-item" + (typeof column.onHeaderClick === "function" ? " pointer" : "");
+            column.onHeaderClick = column.onHeaderClick || this.sort;
+
             return (
-                <th key={uuid()} className="list-item" onClick={this.sortTable.bind(this, column)}>{column.label}</th>
+                <th key={uuid()} className={thCss} onClick={column.onHeaderClick.bind(this, column)}>{column.label}</th>
             )
         });
         
         const bodyRows = this.state.elements.map((element, i) => {
             const bodyColumns = this.state.columns.map(column => {
-                const tdCss = "list-item" + (typeof column.onClick === "function" ? " pointer" : "");
+                const tdCss = "list-item p-3" + (typeof column.onClick === "function" ? " pointer" : "");
                 const onClick = (column, element, event) => { 
                     if (typeof column.onClick === "function") {
                         column.onClick(element, event, column);

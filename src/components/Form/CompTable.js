@@ -2,6 +2,8 @@ import React from 'react';
 import Box from '../Boxes/Box';
 import Button from './Button';
 import Table from './Table';
+import { v4 as uuid } from 'uuid';
+import FormComponent from './FormComponent';
 
 /**
  * props - {
@@ -66,19 +68,21 @@ export default class ComponentTable extends React.Component {
         
         this.columns.push({
             label: (
-                <span className="icon pl-4 is-small has-text-primary pointer" onClick={this.addElement.bind(this, undefined)}>
+                <span className="icon is-medium is-size-5 has-text-primary">
                     <i className="fas fa-plus"></i>
                 </span>
             ),
+            onHeaderClick: this.addElement.bind(this, undefined),
             render: (element) => {
                 return (
-                    <Button className="is-white">
-                        <span className="icon is-small has-text-primary pointer" onClick={this.removeElement.bind(this, element)}>
+                    <FormComponent>
+                        <span className="icon is-medium is-size-5 has-text-primary">
                             <i className="fas fa-trash"></i>
                         </span>
-                    </Button>
+                    </FormComponent>
                 );
             },
+            onClick: this.removeElement.bind(this)
         });
     }
 

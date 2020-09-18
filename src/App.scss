@@ -9,9 +9,6 @@ $text: $light;
 $text-light: $light;
 
 .pointer {
-  :hover {
-    color: $darkblue;
-  }
   cursor: pointer;
 }
 
@@ -41,11 +38,11 @@ $text-light: $light;
   background-color: $darkblue;
 }
 
-.table td.list-item.pointer:hover {
+.table .list-item.pointer:hover{
   background-color: $primary;
   color: $text-light !important;
 }
 
-.table td.list-item.pointer:hover .has-text-primary {
+.table .list-item.pointer:hover .has-text-primary {
   color: $text-light !important;
 }
