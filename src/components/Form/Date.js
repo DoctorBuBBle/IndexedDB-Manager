@@ -7,7 +7,7 @@ export default class DatePicker extends FormComponentBase {
 
     onChange(){
         this.setState({
-            value: moment(this.ref.val(), this.props.format).valueOf()
+            value: moment(this.ref.current.val(), this.props.format).valueOf()
         });
         FormComponentBase.prototype.onChange.apply(this, arguments);
     }

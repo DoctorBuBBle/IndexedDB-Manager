@@ -2,6 +2,7 @@ import React from 'react';
 import Box from '../Boxes/Box';
 import Table from './Table';
 import FormComponent from './FormComponent';
+import { cloneDeep } from 'lodash';
 
 /**
  * props - {
@@ -21,11 +22,8 @@ export default class ComponentTable extends React.Component {
     tableRef = React.createRef();
     columns = [];
     elements = [];
-    updateValues = [];
-
-    constructor(props) {
-        super(props);
-        this.init();
+    state = {
+        columns: this.init()
     }
 
     onChange(column, element, oldOnChange, comp, value, event){
@@ -40,31 +38,22 @@ export default class ComponentTable extends React.Component {
     }
 
     init(){
-        const updateValue = function(column, element, ref){
-            if (typeof element[column.key] !== "object") {
-                element[column.key] = {};
-            }
-            if (ref.current !== null) {
-                element[column.key].value = ref.current.val();
-            }
-        }
-
-        this.columns = this.props.columns.map(column => {
-            column.render = (element, elements, column) => {
-                const props = {
-                    ref: React.createRef(),
-                    ...column.props,
-                    ...element[column.key]
-                };
-                props.onChange = this.onChange.bind(this, column, element, props.onChange);
-                const reactComp = React.createElement(column.comp, props)
-                this.updateValues.push(updateValue.bind(this, column, element, reactComp.ref));
-                return reactComp;
+        const columns = this.props.columns.map(column => {
+            if (typeof column.render !== "function") {
+                column.render = (element, elements, column) => {
+                    const props = {
+                        ref: React.createRef(),
+                        ...column.props,
+                        ...element[column.key]
+                    };
+                    props.onChange = this.onChange.bind(this, column, element, props.onChange);
+                    return React.createElement(column.comp, props)
+                }
             }
             return column;
         });
         
-        this.columns.push({
+        columns.push({
             label: (
                 <span className="icon is-medium is-size-5 has-text-primary">
                     <i className="fas fa-plus"></i>
@@ -82,10 +71,13 @@ export default class ComponentTable extends React.Component {
             },
             onClick: this.removeElement.bind(this)
         });
+
+        return columns;
     }
 
-    addElement(element = {}) {
-        this.tableRef.current.add(element);
+    addElement(element) {
+        debugger
+        this.tableRef.current.add(element || cloneDeep(this.props.defaultElemToAdd));
     }
 
     removeElement(elementToRemove) {
@@ -97,20 +89,31 @@ export default class ComponentTable extends React.Component {
 
     render(){
         return (
-            <Table ref={this.tableRef} columns={this.columns} elements={this.props.elements}/>
+            <Table ref={this.tableRef} columns={this.state.columns} elements={this.props.elements}/>
         )
     }
 
-    val(){
-        const elements = this.tableRef.current.val();
+    val(elements){
+        let tableData = this.tableRef.current.val(elements);
+        if (Array.isArray(tableData)){
+            
+            let results = tableData.map(element => {
+                let result = {};
+                this.state.columns.forEach(column => {
+                    if (column.key !== undefined && column.key !== null) {
+                        result[column.key] = element[column.key];
+                    }
+                });
+                return result;
+            });
 
-        this.updateValues.forEach((updateValue) => updateValue());
-
-        return elements;
+            return results;
+        }
     }
 }
 
 ComponentTable.defaultProps = {
     columns: [],
-    elements: []
+    elements: [],
+    defaultElemToAdd: {}
 }

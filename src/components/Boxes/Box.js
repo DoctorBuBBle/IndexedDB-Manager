@@ -25,7 +25,7 @@ class Box extends React.Component {
         this.setState({
             message: message,
             level: level || LEVEL.INFO,
-            buttons: buttons
+            buttons: buttons || [{label: "OK" , isPrimary: true}]
         });
     }
 

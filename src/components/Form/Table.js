@@ -46,7 +46,7 @@ export default class Table extends React.Component {
     val(elements){
         if (Array.isArray(elements)) {
             this.setState({
-                elements: elements
+                elements: elements.concat([])
             });
         } else {
             return this.state.elements;

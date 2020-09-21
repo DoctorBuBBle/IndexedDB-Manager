@@ -6,10 +6,10 @@ import DatePicker from "./Form/Date";
 
 const TYPES = {
     TEXT: Input,
-    SELECT: SelectBox,
+    //SELECT: SelectBox,
     NUMBER: IntInput,
     CHECKBOX: Checkbox,
-    DATE: DatePicker
+    //DATE: DatePicker
 }
 
 const typesListed = [];
@@ -30,7 +30,10 @@ export default class ColumnTypes extends SelectBox {
 ColumnTypes.defaultProps = {
     labelKey: "label",
     elements: typesListed,
-    value: typesListed[0]
+    value: {
+        label: "TEXT",
+        value: "TEXT"
+    }
 }
 
 ColumnTypes.MAP = TYPES;

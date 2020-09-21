@@ -1,7 +1,7 @@
 import React from 'react';
 import FormComponent from './FormComponent';
 
-export default function button (props){
+export default function Button (props){
     const content = props.children || props.label;
 
     return (
@@ -13,6 +13,6 @@ export default function button (props){
     )
 }
 
-button.defaultProps = {
+Button.defaultProps = {
     className: ""
 }

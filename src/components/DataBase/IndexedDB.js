@@ -75,7 +75,7 @@ export default class DataBase {
             let transaction = db.transaction(["tables", "data"], "readwrite");
             transaction.oncomplete = event => { resolve(); }
             transaction.onerror = event => { 
-                Box.show('Ups! I can\'t create or save the changes to your table', [{ label: "OK" }], Box.LEVEL.ERROR);
+                Box.show('Ups! I can\'t create or save the changes to your table', undefined, Box.LEVEL.ERROR);
                 reject();
             }
             
@@ -94,7 +94,7 @@ export default class DataBase {
                 let request = transaction.objectStore("tables").get(name);
                 request.onsuccess = function(event) {
                     if (typeof event.target.result === "object") {
-                        Box.show(`The table ${name} already exists`, [{ label: "OK" }], Box.LEVEL.WARN);
+                        Box.show(`The table ${name} already exists`, undefined, Box.LEVEL.WARN);
                         reject();
                     } else {
                         addToObjectStore();
@@ -134,13 +134,45 @@ export default class DataBase {
         const objectStore = db.transaction("tables").objectStore("tables");
 
         return new Promise((resolve, reject) => {
-            objectStore.getAll().onsuccess = function(event) {
+            let request = objectStore.getAll();
+            request.onsuccess = function(event) {
                 resolve(event.target.result);
             }
 
-            objectStore.getAll().onerror = function(event) {
+            request.onerror = function(event) {
                 reject(event);
             }
+        });
+    }
+
+    async getData(name) {
+        const db = await this.getDataBase();
+        const objectStore = db.transaction("data").objectStore("data");
+
+        return new Promise((resolve, reject) => {
+            let request = objectStore.get(name);
+
+            request.onsuccess = function(event) {
+                resolve(event.target.result);
+            }
+
+            request.onerror = function(event) {
+                reject(event);
+            }
+        });
+    }
+
+    async setData(name, data) {
+        const db = await this.getDataBase();
+        const objectStore = db.transaction("data", "readwrite").objectStore("data");
+
+        return new Promise((resolve, reject) => {
+            let request = objectStore.put({
+                table: name,
+                elements: data || []
+            });
+            request.onsuccess = event => resolve(event.target.result);
+            request.onerror = event => reject(event);
         });
     }
 }

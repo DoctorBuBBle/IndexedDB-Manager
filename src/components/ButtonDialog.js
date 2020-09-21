@@ -2,6 +2,17 @@ import React from 'react';
 import Dialog from './Dialog';
 import { v4 as uid } from 'uuid';
 
+/**
+ * 
+ * @param {Object} props - {
+ *      {Array} buttons: {
+ *          label
+ *          position: "is-right"
+ *          isPrimary: false,
+ *          onClick: callback function
+ *      }
+ * }
+ */
 export default function(props){
     const buttonsPosition = "mt-3 px-1 buttons " + (props.position ? props.position : "is-right");
     const buttons = props.buttons.map(conf => {

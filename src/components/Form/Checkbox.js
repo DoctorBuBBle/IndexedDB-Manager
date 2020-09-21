@@ -15,7 +15,7 @@ export default class Checkbox extends FormComponentBase {
     render(){
         return (
             <FormComponent label={this.props.label} >
-                <input ref={this.ref} type="checkbox" checked={this.state.value} onChange={this.onChange}></input>
+                <input ref={this.ref} type="checkbox" defaultValue={this.state.value} onChange={this.onChange.bind(this)}></input>
             </FormComponent>
         );
     }

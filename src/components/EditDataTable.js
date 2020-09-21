@@ -4,7 +4,7 @@ import ButtonDialog from './ButtonDialog';
 import ColumnTypes from './ColumnTypes';
 import ComponentTable from './Form/CompTable';
 import Input from './Form/Input';
-import { isValid } from './utilities';
+import { cloneDeep } from 'lodash';
 
 /**
  * props: {
@@ -27,6 +27,11 @@ export default class DataTable extends React.Component {
         isPrimary: true,
         onClick: this.save.bind(this)
     }];
+    defaultElem = {
+        type: {
+            value: ColumnTypes.defaultProps.value
+        }
+    }
     columns = [{
         label: "Column name",
         comp: Input,
@@ -49,7 +54,7 @@ export default class DataTable extends React.Component {
     }]
 
     checkColumnName(name){
-        return name !== undefined && name !== null && /^([a-z])+([a-z_\-0-9])*$/i.test(name);
+        return name !== undefined && name !== null && /^([a-z])+([a-z_\- 0-9])*$/i.test(name);
     }
 
     showLoading(){
@@ -72,9 +77,15 @@ export default class DataTable extends React.Component {
         const tableName = this.inputRef.current.val();
         const columns = this.tableRef.current.val();
         
+        if (!this.checkColumnName(tableName)) {
+            Box.show(`The table name contains illegal characters. The table name must start with a letter and can also contain numbers, minus, underscores and whitespace.`)
+            this.inputRef.current.setInvalid();
+            return;
+        }
+
         let columnsAreValid = columns.length > 0;
         if (!columnsAreValid) {
-            Box.show('A table must have at least one column', [{label: "OK"}]);
+            Box.show('A table must have at least one column');
         }
 
         const columnNames = [];
@@ -82,22 +93,24 @@ export default class DataTable extends React.Component {
             const column = columns[i];
 
             if (!this.checkColumnName(column?.name?.value)) {
-                Box.show(`The column "${column?.name?.value}" contains illegal characters. A column musst start with a letter and can contain numbers.`, [{label: "OK"}]);
+                Box.show(`The column "${column?.name?.value}" contains illegal characters. A column must start with a letter and can also contain numbers, minus, underscores and whitespace.`);
                 columnsAreValid = false;
             }
             if (columnNames.indexOf(column?.name?.value) > -1) {
-                Box.show(`A number of columns have the name "${column?.name?.value}". A column name must be unique.`, [{label: "OK"}]);
+                Box.show(`A number of columns have the name "${column?.name?.value}". A column name must be unique.`);
                 columnsAreValid = false;
             } else {
                 columnNames.push(column?.name?.value);
             }
+            if (column?.type?.value === undefined) {
+                Box.show(`The column "${column?.name?.value}" has no type`);
+                columnsAreValid = false;
+            }
         }
 
-        if (isValid(tableName) && columnsAreValid) {
+        if (columnsAreValid) {
             this.showLoading();
             this.props.db.createTable(tableName, columns, typeof this.props?.table?.label === "string").then(this.props.onSave).catch(this.hideLoading.bind(this));
-        } else {
-            this.inputRef.current.setInvalid();
         }
     }
 
@@ -105,7 +118,7 @@ export default class DataTable extends React.Component {
         return (
             <ButtonDialog title={this.title} buttons={this.buttons}>
                 <Input ref={this.inputRef} label="Name" value={this.props?.table?.label} placeholder="A tabel name is required"/>
-                <ComponentTable ref={this.tableRef} columns={this.columns} elements={this.props?.table?.columns || [{}]}/>
+                <ComponentTable ref={this.tableRef} columns={this.columns} elements={this.props?.table?.columns || [cloneDeep(this.defaultElem)] } defaultElemToAdd={this.defaultElem}/>
             </ButtonDialog>
         )
     }
