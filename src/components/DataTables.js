@@ -41,6 +41,7 @@ export default function DataTables(props) {
         onClick: handleShowTableClick
     }, {
         label: "Edit",
+        sort: false,
         render: element => {
             return (
                 <span className="icon is-small has-text-primary">
@@ -52,6 +53,7 @@ export default function DataTables(props) {
 
     }, {
         label: "Remove",
+        sort: false,
         render: (element) => {
             return (
                 <span className="icon is-small has-text-primary">
@@ -62,7 +64,24 @@ export default function DataTables(props) {
         onClick: handeRemoveTableClick
 
     }];
- 
+
+    const sort = (column, elements, sortASC) => {
+        return elements.sort((a, b) => {
+            const nameA = a.label;
+            const nameB = b.label;
+
+            if (nameA < nameB) {
+                return sortASC? -1 : 1;
+            }
+            if (nameA > nameB) {
+                return sortASC? 1 : -1;
+            }
+        
+            // names must be equal
+            return 0;
+        });
+    }
+
     let content;
 
     if (tables === null) {
@@ -75,7 +94,7 @@ export default function DataTables(props) {
         }
 
     } else if (Array.isArray(tables)) {
-        content = <Table columns={COLUMNS} elements={tables}/>;
+        content = <Table columns={COLUMNS} elements={tables} sortBy={sort}/>;
     }
 
     return (

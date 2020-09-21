@@ -2,6 +2,7 @@ import { v4 as uuid } from 'uuid';
 import isEqual from 'fast-deep-equal';
 import React from 'react';
 import FormComponent from './FormComponent';
+import Box from '../Boxes/Box';
 
 /**
  * 
@@ -53,20 +54,49 @@ export default class Table extends React.Component {
         }
     }
 
-    sort(){
+    sort(column){
+        if (typeof this.props.sortBy === "function") {
+            let sortASC = this.state.sortedBy?.label !== column.label || !this.state.sortASC;
 
+            const sortedElements = this.props.sortBy(column, this.state.elements, sortASC);
+            this.setState({
+                elements: sortedElements.concat([]),
+                sortedBy: column,
+                sortASC: sortASC
+            });
+        } else {
+            Box.show("WARNING: You tried to sort a table that has no sort function defined!");
+        }
     }
 
     render() {
         const headerRow = this.state.columns.map((column, i) => {
-            const thCss = "list-item" + (typeof column.onHeaderClick === "function" ? " pointer" : "");
-            column.onHeaderClick = column.onHeaderClick || this.sort;
+            const onHeaderClick = column.onHeaderClick || column.sort !== false ? this.sort : ()=>{};
+            let thCss = "list-item relative";
+            let sortIcon;
+
+            if (column.sort !== false) {
+                if (this.state?.sortedBy?.label === column.label) {
+                    sortIcon = this.state?.sortASC ? <i className="fas fa-sort-up"></i> : <i className="fas fa-sort-down"></i>;
+                } else {
+                    sortIcon = <i className="fas fa-sort"></i>;
+                }
+            }
+
+            if (sortIcon) {
+                thCss += " pointer";
+            }
 
             return (
-                <th key={uuid()} className={thCss} onClick={column.onHeaderClick.bind(this, column)}>{column.label}</th>
+                <th key={uuid()} className={thCss} onClick={onHeaderClick.bind(this, column)}>
+                    {column.label}
+                    <div className="sort-column has-text-primary">
+                        {sortIcon}
+                    </div>
+                </th>
             )
         });
-        
+
         const bodyRows = this.state.elements.map((element, i) => {
             const bodyColumns = this.state.columns.map(column => {
                 const tdCss = "list-item p-3" + (typeof column.onClick === "function" ? " pointer" : "");

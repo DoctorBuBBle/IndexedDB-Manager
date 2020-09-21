@@ -1,4 +1,5 @@
 import React from "react";
+import Box from "./Boxes/Box";
 import ButtonDialog from "./ButtonDialog";
 import ColumnTypes from "./ColumnTypes";
 import ComponentTable from "./Form/CompTable";
@@ -8,6 +9,27 @@ export default class Table extends React.Component {
     buttons = [{
         label: "Close",
         onClick: this.props.onClose
+    }, {
+        label: "Clear table",
+        onClick: () => {
+            Box.show(`Do you want to clear the table of all it's data?`, [{
+                label: "No"
+            }, {
+                label: "Yes",
+                isPrimary:  true,
+                onClick: () => {
+                    const after = () => {
+                        this.hideLoading();
+                        this.setState({
+                            elements: null
+                        });
+                    }
+
+                    this.showLoading();
+                    this.props.db.setData(this.props.table.label).then(after, after);
+                }
+            }])
+        }
     }, {
         label: "Save",
         isPrimary: true,
@@ -61,7 +83,7 @@ export default class Table extends React.Component {
         }
 
         return (
-            <ButtonDialog label={this.props.table.label} buttons={this.buttons}>
+            <ButtonDialog title={this.props.table.label} buttons={this.buttons}>
                 <ComponentTable ref={this.ref} columns={this.state.columns} elements={this.state.elements || []} />
             </ButtonDialog>
         );

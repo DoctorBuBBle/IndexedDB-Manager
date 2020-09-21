@@ -72,7 +72,7 @@ export default class DataBase {
         let db = await this.getDataBase();
 
         return new Promise((resolve, reject) => {
-            let transaction = db.transaction(["tables", "data"], "readwrite");
+            let transaction = db.transaction(["tables"], "readwrite");
             transaction.oncomplete = event => { resolve(); }
             transaction.onerror = event => { 
                 Box.show('Ups! I can\'t create or save the changes to your table', undefined, Box.LEVEL.ERROR);
@@ -83,10 +83,6 @@ export default class DataBase {
                 transaction.objectStore("tables").put({
                     label: name,
                     columns: columns
-                });
-                transaction.objectStore("data").put({
-                    table: name,
-                    elements: []
                 });
             }
 
@@ -104,7 +100,7 @@ export default class DataBase {
                     reject();
                 }
             } else {
-                addToObjectStore();
+                addToObjectStore([]);
             }
         });
     }

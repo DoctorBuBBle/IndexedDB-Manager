@@ -50,3 +50,14 @@ body {
 .table .list-item.pointer:hover .has-text-primary {
   color: $text-light !important;
 }
+
+.relative {
+  position: relative;
+}
+
+.sort-column {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+}

@@ -75,9 +75,8 @@ export default class ComponentTable extends React.Component {
         return columns;
     }
 
-    addElement(element) {
-        debugger
-        this.tableRef.current.add(element || cloneDeep(this.props.defaultElemToAdd));
+    addElement(element = cloneDeep(this.props.defaultElemToAdd)) {
+        this.tableRef.current.add(element);
     }
 
     removeElement(elementToRemove) {
