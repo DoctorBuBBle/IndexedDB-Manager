@@ -2,7 +2,7 @@ import React from 'react';
 import Box from '../Boxes/Box';
 import Table from './Table';
 import FormComponent from './FormComponent';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, orderBy } from 'lodash';
 
 /**
  * props - {
@@ -59,6 +59,7 @@ export default class ComponentTable extends React.Component {
                     <i className="fas fa-plus"></i>
                 </span>
             ),
+            sort: false,
             onHeaderClick: this.addElement.bind(this, undefined),
             render: (element) => {
                 return (
@@ -86,9 +87,25 @@ export default class ComponentTable extends React.Component {
         );
     }
 
+    sort(column, elements, sortASC) {
+        const order = sortASC ? 'asc' : 'desc';
+        const getter = o => {
+            let value;
+            if (column.key === 'type') {
+                value = o[column.key]?.value?.label;
+            } else {
+                value = o[column.key]?.value;
+            }
+            
+            return value;
+        }
+        
+        return orderBy(elements, [getter], [order]);
+    }
+
     render(){
         return (
-            <Table ref={this.tableRef} columns={this.state.columns} elements={this.props.elements}/>
+            <Table ref={this.tableRef} sortBy={this.sort} columns={this.state.columns} elements={this.props.elements}/>
         )
     }
 

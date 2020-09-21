@@ -71,7 +71,14 @@ export default class Table extends React.Component {
 
     render() {
         const headerRow = this.state.columns.map((column, i) => {
-            const onHeaderClick = column.onHeaderClick || column.sort !== false ? this.sort : ()=>{};
+            let onHeaderClick;
+
+            if (typeof column.onHeaderClick === "function") {
+                onHeaderClick = column.onHeaderClick.bind(this, column)
+            } else if (column.sort !== false) {
+                onHeaderClick = this.sort.bind(this, column);
+            }
+
             let thCss = "list-item relative";
             let sortIcon;
 
@@ -83,12 +90,12 @@ export default class Table extends React.Component {
                 }
             }
 
-            if (sortIcon) {
+            if (typeof onHeaderClick === "function") {
                 thCss += " pointer";
             }
 
             return (
-                <th key={uuid()} className={thCss} onClick={onHeaderClick.bind(this, column)}>
+                <th key={uuid()} className={thCss} onClick={onHeaderClick}>
                     {column.label}
                     <div className="sort-column has-text-primary">
                         {sortIcon}
