@@ -46,7 +46,7 @@ export default class Table extends React.Component {
                 this.ref.current.val(data.elements);
                 this.hideLoading();
             }).catch(() => {
-                Box.show(`I cant load the data for ${this.props.table.label}.`);
+                this.hideLoading();
             });
         }, 1);
     }
