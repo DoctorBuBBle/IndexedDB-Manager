@@ -39,9 +39,16 @@ export default class Table extends React.Component {
         columns: this.getColumns()
     }
 
-    async getElements(){
-        let data = await this.props.db.getData(this.props.table.label);
-        this.ref.current.val(data.elements);
+    getElements(){
+        setTimeout(() => {
+            this.showLoading();
+            this.props.db.getData(this.props.table.label).then((data) => {
+                this.ref.current.val(data.elements);
+                this.hideLoading();
+            }).catch(() => {
+                Box.show(`I cant load the data for ${this.props.table.label}.`);
+            });
+        }, 1);
     }
 
     getColumns(){
