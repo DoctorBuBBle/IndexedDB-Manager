@@ -8,14 +8,16 @@ export default class Checkbox extends FormComponentBase {
             this.setState({
                 value: this.ref.current.checked
             });
-            FormComponentBase.prototype.onChange.call(this, event);
+            if (typeof this.props.onChange === "function") {
+                this.props.onChange(this, this.ref.current.checked, event);
+            }
         }
     }
 
     render(){
         return (
             <FormComponent label={this.props.label} >
-                <input ref={this.ref} type="checkbox" defaultValue={this.state.value} onChange={this.onChange.bind(this)}></input>
+                <input ref={this.ref} type="checkbox" defaultChecked={this.state.value} onChange={this.onChange.bind(this)}></input>
             </FormComponent>
         );
     }
