@@ -69,6 +69,18 @@ export default class Table extends React.Component {
         }
     }
 
+    filter(callback){
+        this.setState({
+            filter: callback
+        });
+    }
+
+    clearFilter(){
+        this.setState({
+            filter: null
+        });
+    }
+
     render() {
         const headerRow = this.state.columns.map((column, i) => {
             let onHeaderClick;
@@ -104,7 +116,8 @@ export default class Table extends React.Component {
             )
         });
 
-        const bodyRows = this.state.elements.map((element, i) => {
+        const filtered = typeof this.state.filter === "function" ? this.state.elements.filter(this.state.filter) : this.state.elements;
+        const bodyRows = filtered.map((element, i) => {
             const bodyColumns = this.state.columns.map(column => {
                 const tdCss = "list-item p-3" + (typeof column.onClick === "function" ? " pointer" : "");
                 const onClick = (column, element, event) => { 
@@ -115,7 +128,7 @@ export default class Table extends React.Component {
                 let value;
     
                 if (typeof column.render === "function") {
-                    value = column.render(element, this.state.elements, column);
+                    value = column.render(element, filtered, column);
                 } else if (typeof column.render === "string") {
                     value = element[column.render];
                 } else if (column.render !== null && column.render !== undefined) {

@@ -3,6 +3,11 @@ import Box from '../Boxes/Box';
 import Table from './Table';
 import FormComponent from './FormComponent';
 import { cloneDeep, orderBy } from 'lodash';
+import escapeStringRegexp from 'escape-string-regexp';
+
+function getRegex(s) {
+    return new RegExp('.*(' + escapeStringRegexp(s) + ').*', 'g');
+}
 
 /**
  * props - {
@@ -19,6 +24,7 @@ import { cloneDeep, orderBy } from 'lodash';
  */
 
 export default class ComponentTable extends React.Component {
+    searchInputRef = React.createRef();
     tableRef = React.createRef();
     columns = [];
     elements = [];
@@ -103,10 +109,51 @@ export default class ComponentTable extends React.Component {
         return orderBy(elements, [getter], [order]);
     }
 
+    search(){
+        if (this.searchInputRef.current) {
+            const val = this.searchInputRef.current.value;
+
+            if (typeof val === "string" && val.trim() !== "") {
+                const reg = getRegex(val);
+
+                this.tableRef.current.filter(element => {
+                    let found = false;
+    
+                    for (let index = 0; index < this.state.columns.length && !found; index++) {
+                        const column = this.state.columns[index];
+                        let prop = element[column.key]?.value;
+                        
+                        if (typeof prop === "object") {
+                            prop = prop.label;
+                        }
+    
+                        found = reg.test(prop);
+                    }
+    
+                    return found;
+                });
+            } else {
+                this.tableRef.current.clearFilter();
+            }
+        }
+    }
+
     render(){
         return (
-            <Table ref={this.tableRef} sortBy={this.sort} columns={this.state.columns} elements={this.props.elements}/>
-        )
+            <div>
+                <div className="control is-expanded has-icons-left">
+                    <input ref={this.searchInputRef} type="text" className="input" placeholder="Search" onChange={this.search.bind(this)} />
+                    <span className="icon is-medium is-left">
+                        <i className="fas fa-search"></i>
+                    </span>
+                </div> 
+                <Table ref={this.tableRef} sortBy={this.sort} columns={this.state.columns} elements={this.props.elements}/>
+            </div>
+        );
+    }
+
+    filter(){
+        this.tableRef.current.filter.apply(this.tableRef.current, arguments);
     }
 
     val(elements){

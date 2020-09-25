@@ -2,7 +2,6 @@ import Input from "./Form/Input";
 import IntInput from "./Form/IntInput";
 import SelectBox from "./Form/SelectBox";
 import Checkbox from "./Form/Checkbox";
-import DatePicker from "./Form/Date";
 
 const TYPES = {
     TEXT: Input,
