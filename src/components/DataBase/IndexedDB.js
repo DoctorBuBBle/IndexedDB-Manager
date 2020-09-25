@@ -13,7 +13,8 @@ export default class DataBase {
                 let dataPromise;
                 let request = window.indexedDB.open("main", 4);
                 request.onerror = function(event) {
-                    reject("To use this webapp you need to allow it access to your IndexedDB");
+                    Box.show("To use this webapp you need to allow it access to your IndexedDB");
+                    reject();
                 };
                 request.onsuccess = function(event){
                     if (tablesPromise) {
