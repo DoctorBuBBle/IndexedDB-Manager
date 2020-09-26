@@ -26,8 +26,8 @@ export default function(props){
     })
 
     return (
-        <div>
-            <Dialog title={props.title}>
+        <div className="fd">
+            <Dialog className={props.className} title={props.title}>
                 {props.children}
             </Dialog>
             <div className={buttonsPosition}>

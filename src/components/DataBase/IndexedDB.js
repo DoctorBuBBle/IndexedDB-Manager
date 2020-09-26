@@ -142,6 +142,23 @@ export default class DataBase {
         });
     }
 
+    async getTable(name) {
+        const db = await this.getDataBase();
+        const objectStore = db.transaction("tables").objectStore("tables");
+
+        return new Promise((resolve, reject) => {
+            let request = objectStore.get(name);
+
+            request.onsuccess = function(event) {
+                resolve(event.target.result);
+            }
+
+            request.onerror = function(event) {
+                reject(event);
+            }
+        });
+    }
+
     async getData(name) {
         const db = await this.getDataBase();
         const objectStore = db.transaction("data").objectStore("data");

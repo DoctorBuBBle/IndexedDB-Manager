@@ -5,7 +5,19 @@ import Dialog from './Dialog';
 
 export default function DataTables(props) {
     const [tables, setTables] = useState(null);
+    const fileUploadRef = React.createRef();
+    const uploadButton = React.createRef();
 
+    const download = (event) => {
+        if (typeof props.onDownload === "function") {
+            props.onDownload(event);
+        }
+    }
+    function importZip (event) {
+        if (typeof props.onImportZip === "function") {
+            props.onImportZip(uploadButton, event);
+        }
+    }
     const getAddTableClasses = (isLoading) => {
         let css = "button is-primary is-hoverable";
 
@@ -16,7 +28,7 @@ export default function DataTables(props) {
         return css;
     }
     const handleAddTableClick = function (event) {
-        if (!event.currentTarget.classList.contains("is-loading") && typeof props.onAddTable === "function") {
+        if (typeof props.onAddTable === "function") {
             props.onAddTable()
         }
     }
@@ -52,8 +64,13 @@ export default function DataTables(props) {
         onClick: handeEditTableClick
 
     }, {
-        label: "Remove",
+        label: (
+            <span className="icon is-medium is-size-5 has-text-primary">
+                <i className="fas fa-plus"></i>
+            </span>
+        ),
         sort: false,
+        onHeaderClick: handleAddTableClick,
         render: (element) => {
             return (
                 <span className="icon is-small has-text-primary">
@@ -103,11 +120,17 @@ export default function DataTables(props) {
                 {content}
             </Dialog>
             <div className="mt-3 buttons is-centered">
-                <button className={getAddTableClasses(tables === null)} onClick={handleAddTableClick}>
+                <button className={getAddTableClasses(tables === null)} onClick={download} title="Download as ZIP file">
                     <span className="icon is-small">
-                        <i className="fas fa-plus"></i>
+                        <i className="fas fa-download"></i>
                     </span>
                 </button>
+                <button ref={uploadButton} className={"hidden" || getAddTableClasses(tables === null)} onClick={() => fileUploadRef.current.click()} title="Import ZIP file">
+                    <span className="icon is-small">
+                        <i className="fas fa-upload"></i>
+                    </span>
+                </button>
+                <input ref={fileUploadRef} className="hidden" type="file" onChange={importZip} />
             </div>
         </div>
     );

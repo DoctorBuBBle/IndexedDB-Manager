@@ -116,7 +116,7 @@ export default class DataTable extends React.Component {
 
     render(){
         return (
-            <ButtonDialog title={this.title} buttons={this.buttons}>
+            <ButtonDialog className="table-config" title={this.title} buttons={this.buttons}>
                 <Input ref={this.inputRef} label="Name" value={this.props?.table?.label} placeholder="A tabel name is required"/>
                 <ComponentTable ref={this.tableRef} columns={this.columns} elements={this.props?.table?.columns || [cloneDeep(this.defaultElem)] } defaultElemToAdd={this.defaultElem}/>
             </ButtonDialog>
