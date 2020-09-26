@@ -8,7 +8,7 @@ import LoadingSpinner from './components/Spinner/LoadingSpinner';
 import JSZip from 'jszip';
 
 async function onUpload (dataBase, button, event) {
-  const error = () => Box.show('Can\'t import ZIP file');
+  //const error = () => Box.show('Can\'t import ZIP file');
   const errorTable = (tableName) => Box.show(`Can't update table ${tableName}`);
   button.current.classList.add('is-loading');
   let zipBlob = event.target.files[0];
@@ -25,7 +25,7 @@ async function onUpload (dataBase, button, event) {
        .on("data", data => {debugger; rows.push(data); })
        .on("error", errorTable.bind(this, tableName))
        .on("end", () => {
-        const content = rows;
+        //const content = rows;
         debugger;
         button.current.classList.remove('is-loading');
        })
