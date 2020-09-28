@@ -125,7 +125,7 @@ export default function DataTables(props) {
                         <i className="fas fa-download"></i>
                     </span>
                 </button>
-                <button ref={uploadButton} className={"hidden" || getAddTableClasses(tables === null)} onClick={() => fileUploadRef.current.click()} title="Import ZIP file">
+                <button ref={uploadButton} className={getAddTableClasses(tables === null)} onClick={() => fileUploadRef.current.click()} title="Import ZIP file">
                     <span className="icon is-small">
                         <i className="fas fa-upload"></i>
                     </span>

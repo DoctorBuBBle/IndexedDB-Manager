@@ -6,37 +6,114 @@ import DataTable from './components/DataTable';
 import EditDataTable from './components/EditDataTable';
 import LoadingSpinner from './components/Spinner/LoadingSpinner';
 import JSZip from 'jszip';
+import { find } from 'lodash';
+import parseCSV from 'csv-parse/lib/sync';
+import stringifyCSV from 'csv-stringify/lib/sync';
+
+async function handleTableFile(database, tableName, fileData){
+  try {
+    let table = await database.getTable(tableName);
+    let elements = parseCSV(fileData, {
+      bom: true,
+      columns: true,
+      skip_empty_lines: true,
+      on_record: record => { 
+        let transRecord = {};
+        Object.getOwnPropertyNames(record).forEach(prop => {
+          transRecord[prop] = { value: record[prop] }
+        });
+        return transRecord;
+      }
+    });
+
+    if (elements && elements.length) {
+      if (typeof table !== "object") {
+        table = {
+          label: tableName,
+          columns: []
+        }
+      }
+      
+      table.columns = Object.getOwnPropertyNames(elements[0]).map(columnName => {
+        let column = find(table.columns, ['name.value', columnName]);
+        if (!column) {
+          column = {
+            name: {value: columnName},
+            type: {value: {label: "TEXT", value: "TEXT"}}
+          }
+        }
+    
+        return column;
+      });
+    
+      await database.createTable(table.label, table.columns, true);
+      await database.setData(table.label, elements);
+    }
+  } catch (e) {
+    console.error(e);
+    Box.show(`Can't update table ${tableName}`);
+  }
+}
 
 async function onUpload (dataBase, button, event) {
-  //const error = () => Box.show('Can\'t import ZIP file');
   const errorTable = (tableName) => Box.show(`Can't update table ${tableName}`);
   button.current.classList.add('is-loading');
   let zipBlob = event.target.files[0];
   let arrayBuffer = await zipBlob.arrayBuffer();
-  let zip = await (new JSZip()).loadAsync(arrayBuffer);
-  let fileNames = Object.getOwnPropertyNames(zip.files)
+  let zip = await JSZip.loadAsync(arrayBuffer);
+  zip.forEach((relativePath, zipEntry) => {
+    const tableName = zipEntry.name.slice(0, zipEntry.name.length - 4);
+    zipEntry.async('string')
+            .then(handleTableFile.bind(this, dataBase, tableName))
+            .catch(errorTable.bind(this, tableName))
+  });
 
-  for (let index = 0; index < fileNames.length; index++) {
-    const fileName = fileNames[index];
-    const tableName = fileName.slice(0, fileName.length - 4);
-    const rows = [];
-    zip.file(fileName)
-       .internalStream("string")
-       .on("data", data => {debugger; rows.push(data); })
-       .on("error", errorTable.bind(this, tableName))
-       .on("end", () => {
-        //const content = rows;
-        debugger;
-        button.current.classList.remove('is-loading');
-       })
-  }
-
-  debugger;
-
+  button.current.classList.remove('is-loading');
 }
 
-const onDownload = (dataBase, event) => {
+const onDownload = async (dataBase, event) => {
   const button = event.currentTarget;
+  button.classList.add('is-loading');
+  const ZIP = new JSZip();
+  const tables = await dataBase.getTables();
+
+  for (let index = 0; index < tables.length; index++) {
+    const table = tables[index];
+    const columns = table.columns.map(column => {
+      return {
+        header: column.name.value,
+        key: column.name.value
+      }
+    });
+    const data = await dataBase.getData(table.label);
+    let elements = [];
+    if (typeof data === "object" && data.elements && data.elements.length) {
+      elements = data.elements;
+    }
+
+    const fileContent = stringifyCSV(elements, {
+      columns: columns,
+      header: true,
+      cast: {
+        object: o => {
+          if (o?.value?.label) {
+            return '' + o.value.label;
+          } else {
+            return '' + o?.value;
+          }
+        }
+      }
+    });
+
+    ZIP.file(table.label + '.csv', fileContent);
+  }
+
+  let base64 = await ZIP.generateAsync({type: "base64"});
+  window.open("data:application/zip;base64," + base64);
+
+  button.classList.remove('is-loading');
+
+  /*
   const errorMsg = table => { Box.show(`Ups can't download ${table.label}`)}
   const ZIP = new JSZip();
   const addFile = (name, content) => ZIP.file(name + '.csv', content);
@@ -87,13 +164,12 @@ const onDownload = (dataBase, event) => {
     });
 
     return Promise.all(promises).then(() => {
-      return ZIP.generateAsync({type: "base64"}).then(base64 => {
-        window.open("data:application/zip;base64," + base64);
-      });
+      return 
     })
   }).catch(error).finally(() => {
     button.classList.remove('is-loading');
   });
+  */
 
 }
 
