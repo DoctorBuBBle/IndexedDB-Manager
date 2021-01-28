@@ -1,6 +1,6 @@
 # IndexedDB-Manager
 
-IndexedDB-Manager allows a user to manage data in the indexedDB of his browser. This project contains horrible code and I am going to rework this soon :)
+IndexedDB-Manager allows a user to manage data in the indexedDB of his browser. This project contains ugly code and I am going to rework this soon :)
 
 ## Build with create-react-app
 
